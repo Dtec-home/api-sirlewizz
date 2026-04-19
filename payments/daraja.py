@@ -56,12 +56,12 @@ def initiate_stk_push(order_id: int, phone: str):
         'Password': _password(ts),
         'Timestamp': ts,
         'TransactionType': 'CustomerBuyGoodsOnline',
-        'Amount': order.total_amount,
+        'Amount': int(order.total_amount),
         'PartyA': formatted_phone,
-        'PartyB': settings.MPESA_TILL_NUMBER,
+        'PartyB': settings.MPESA_SHORTCODE,
         'PhoneNumber': formatted_phone,
         'CallBackURL': settings.MPESA_CALLBACK_URL,
-        'AccountReference': str(order_id),
+        'AccountReference': f'Order_{order_id}',
         'TransactionDesc': f'Order {order_id}',
     }
 

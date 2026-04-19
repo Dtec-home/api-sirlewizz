@@ -28,7 +28,7 @@ services:
         value: ".onrender.com"
 
       - key: PYTHON_VERSION
-        value: "3.11.0"
+        value: "3.12.0"
 
       # CORS — update this to your actual Vercel/Netlify frontend URL after deploy
       - key: CORS_ALLOWED_ORIGINS

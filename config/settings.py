@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'corsheaders',
     'strawberry_django',
+    'storages',
     'users',
     'products',
     'inventory',
@@ -101,17 +102,42 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Storage configuration - use Backblaze B2 in production
+if not DEBUG:
+    # Production: Use Backblaze B2
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "access_key": config('AWS_ACCESS_KEY_ID', default=''),
+                "secret_key": config('AWS_SECRET_ACCESS_KEY', default=''),
+                "bucket_name": config('AWS_STORAGE_BUCKET_NAME', default=''),
+                "endpoint_url": config('AWS_S3_ENDPOINT_URL', default='https://s3.us-west-000.backblazeb2.com'),
+                "region_name": config('AWS_S3_REGION_NAME', default='us-west-000'),
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    MEDIA_URL = config('AWS_S3_CUSTOM_DOMAIN', default='') + '/media/'
+else:
+    # Development: Use local file system
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+# Only set MEDIA_ROOT in development
+if DEBUG:
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
